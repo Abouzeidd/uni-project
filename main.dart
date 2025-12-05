@@ -1,46 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:uni_project/core/utils/app_colors.dart';
-import 'package:uni_project/features/splash/presentation/views/login_view.dart';
-import 'package:uni_project/features/splash/presentation/views/signup_view.dart';
-import 'package:uni_project/features/splash/presentation/views/widgets/on_boarding_view.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'features/splash/presentation/views/splash_view.dart';
+import 'home_page.dart';
 
-Route<dynamic> onGenerateRoute(RouteSettings settings) {
-  switch (settings.name) {
-    case LoginView.routeName:
-      return MaterialPageRoute(builder: (_) => const LoginView());
-    case SplashView.routeName:
-      return MaterialPageRoute(builder: (_) => const SplashView());
-    case SignupView.routeName:
-      return MaterialPageRoute(builder: (_) => const SignupView());
-    default:
-      // أي route مش معروف يروح صفحة افتراضية
-      return MaterialPageRoute(
-        builder: (_) => Scaffold(
-          body: Center(child: Text('Page not found!')),
-        ),
-      );
-  }
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: 'https://scnrfszmrxbgoeicekai.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjbnJmc3ptcnhiZ29laWNla2FpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxODUzNDUsImV4cCI6MjA3OTc2MTM0NX0.C5A2NzLUybENCutEQ1RaKAdKpYp4Kdab_mXgbyAOfx0',
+  );
+
+  runApp(FruitApp());
 }
 
-void main() {
-  runApp(const FruitHub());
-}
+final cloud = Supabase.instance.client;
 
-class FruitHub extends StatelessWidget {
-  const FruitHub({super.key});
+class FruitApp extends StatelessWidget {
+  FruitApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-          fontFamily: 'Cairo',
-          colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryColor)),
-      debugShowCheckedModeBanner: false,
-      // home: LoginView(),
-      onGenerateRoute: onGenerateRoute,
-      initialRoute: OnBoardingView.routeName,
-    );
+    return MaterialApp(debugShowCheckedModeBanner: false, home: HomePage());
   }
 }
