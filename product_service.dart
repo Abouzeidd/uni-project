@@ -12,4 +12,12 @@ class ProductService {
       return [];
     }
   }
+
+  Future<void> addToCart(Fruit fruit) async {
+    await cloud.from('cart').insert({
+      'name': fruit.name,
+      'quantity': 1,
+      'total_price': fruit.price,
+    });
+  }
 }
