@@ -15,15 +15,35 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final productService = ProductService();
   final fruits = <Fruit>[].obs;
+  final searchController = TextEditingController();
+  final filteredFruits = <Fruit>[].obs;
 
   @override
   void initState() {
     super.initState();
     loadFruits();
+
+    // Listen to search input changes
+    searchController.addListener(() {
+      filterFruits(searchController.text);
+    });
   }
 
   Future<void> loadFruits() async {
     fruits.value = await productService.loadProducts();
+    filteredFruits.value = fruits; // Initially, show all fruits
+  }
+
+  void filterFruits(String query) {
+    if (query.isEmpty) {
+      filteredFruits.value = fruits;
+    } else {
+      filteredFruits.value = fruits
+          .where(
+            (fruit) => fruit.name.toLowerCase().contains(query.toLowerCase()),
+          )
+          .toList();
+    }
   }
 
   @override
@@ -42,9 +62,32 @@ class _HomePageState extends State<HomePage> {
             },
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: "Search fruits...",
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 0,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
       body: Obx(() {
-        if (fruits.isEmpty) {
+        if (filteredFruits.isEmpty) {
           return const Center(child: CircularProgressIndicator());
         }
 
@@ -56,9 +99,9 @@ class _HomePageState extends State<HomePage> {
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
           ),
-          itemCount: fruits.length,
+          itemCount: filteredFruits.length,
           itemBuilder: (context, index) {
-            final fruit = fruits[index];
+            final fruit = filteredFruits[index];
 
             return Container(
               decoration: BoxDecoration(
@@ -97,8 +140,6 @@ class _HomePageState extends State<HomePage> {
                     style: const TextStyle(fontSize: 16, color: Colors.black87),
                   ),
                   const SizedBox(height: 10),
-
-                  // 🛒 ADD TO CART BUTTON
                   ElevatedButton.icon(
                     onPressed: () async {
                       await productService.addToCart(fruit);
@@ -125,5 +166,11 @@ class _HomePageState extends State<HomePage> {
         );
       }),
     );
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 }
