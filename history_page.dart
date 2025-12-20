@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'product_service.dart';
+import 'models.dart';
+import 'order service.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -10,8 +11,9 @@ class HistoryPage extends StatefulWidget {
 }
 
 class _HistoryPageState extends State<HistoryPage> {
-  final productService = ProductService();
-  List<Map<String, dynamic>> history = [];
+  final OrderService orderService = OrderService();
+  List<Order> orders = [];
+  List<OrderItem> orderItems = [];
   bool loading = true;
 
   @override
@@ -21,10 +23,26 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Future<void> loadHistory() async {
+    setState(() => loading = true);
+
     try {
-      final data = await productService.loadHistory();
+      // Fetch all orders for the user
+      final fetchedOrders = await orderService.getUserOrders(
+        'user@example.com',
+      ); // replace
+
+      // Fetch all order items
+      final fetchedItems = await orderService.getAllOrderItems();
+
+      // Map items to orders
+      for (var order in fetchedOrders) {
+        order.items = fetchedItems
+            .where((item) => item.orderId == order.orderId)
+            .toList();
+      }
+
       setState(() {
-        history = data;
+        orders = fetchedOrders;
         loading = false;
       });
     } catch (e) {
@@ -43,7 +61,7 @@ class _HistoryPageState extends State<HistoryPage> {
       ),
       body: loading
           ? const Center(child: CircularProgressIndicator())
-          : history.isEmpty
+          : orders.isEmpty
           ? const Center(
               child: Text(
                 "No previous orders found.",
@@ -52,10 +70,9 @@ class _HistoryPageState extends State<HistoryPage> {
             )
           : ListView.builder(
               padding: const EdgeInsets.all(12),
-              itemCount: history.length,
+              itemCount: orders.length,
               itemBuilder: (context, index) {
-                final order = history[index];
-                final items = order['items'] as List<dynamic>;
+                final order = orders[index];
 
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8),
@@ -69,7 +86,7 @@ class _HistoryPageState extends State<HistoryPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Order #${order['id']}",
+                          "Order #${order.orderId}",
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -78,25 +95,32 @@ class _HistoryPageState extends State<HistoryPage> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          "Date: ${order['created_at']}",
+                          "Date: ${order.createdAt.toLocal().toString().split(' ')[0]}",
                           style: const TextStyle(fontSize: 14),
                         ),
                         const Divider(height: 20),
-                        ...items.map(
-                          (item) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("${item['name']} x${item['quantity']}"),
-                                Text("\$${item['total_price']}"),
-                              ],
-                            ),
-                          ),
-                        ),
+                        ...order.items
+                            .map(
+                              (item) => Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Fruit ID: ${item.fruitId} x${item.quantity}",
+                                    ),
+                                    Text("\$${item.price.toStringAsFixed(2)}"),
+                                  ],
+                                ),
+                              ),
+                            )
+                            .toList(),
                         const Divider(height: 20),
                         Text(
-                          "Total: \$${order['total_price']}",
+                          "Total: \$${order.totalPrice.toStringAsFixed(2)}",
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
