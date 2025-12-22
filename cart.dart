@@ -115,6 +115,9 @@ class CartPage extends StatelessWidget {
 
                     try {
                       await controller.placeOrder();
+
+                      // 👇 روح للهستوري
+
                     } catch (e) {
                       Get.snackbar(
                         "Error",
