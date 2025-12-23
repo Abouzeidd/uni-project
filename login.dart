@@ -60,19 +60,36 @@ class _LoginPageState extends State<Login> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text('Login')),
+        backgroundColor: const Color(0xFFFFF6FA),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          title: const Text(
+            'Login',
+            style: TextStyle(color: Colors.black),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+            onPressed: () => Get.back(),
+          ),
+        ),
         body: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
+              const SizedBox(height: 30),
+
+              /// EMAIL
               CustomTextFormField(
                 hintText: 'Email address',
                 textInputType: TextInputType.emailAddress,
                 controller: emailController,
               ),
+
               const SizedBox(height: 16),
 
-              /// 🔥 PASSWORD WITH EYE ICON
+              /// PASSWORD
               CustomTextFormField(
                 hintText: 'Password',
                 textInputType: TextInputType.visiblePassword,
@@ -86,23 +103,55 @@ class _LoginPageState extends State<Login> {
               ),
 
               const SizedBox(height: 30),
-              ElevatedButton(onPressed: _login, child: const Text('Login')),
+
+              /// LOGIN BUTTON
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: _login,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 30),
 
+              /// DIVIDER + TEXT
+              Row(
+                children: const [
+                  Expanded(child: Divider()),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Text("Don't have an account?"),
+                  ),
+                  Expanded(child: Divider()),
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              /// SIGN UP
               RichText(
                 text: TextSpan(
-                  text: "Don't have an account? ",
-                  style: const TextStyle(color: Colors.black),
-                  children: [
-                    TextSpan(
-                      text: 'Sign Up',
-                      style: const TextStyle(
-                        color: Colors.green,
-                        decoration: TextDecoration.underline,
-                      ),
-                      recognizer: _tapRecognizer,
-                    ),
-                  ],
+                  text: 'Sign Up',
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  recognizer: _tapRecognizer,
                 ),
               ),
             ],
