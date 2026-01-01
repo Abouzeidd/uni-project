@@ -1,4 +1,3 @@
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,9 +17,8 @@ class _RegisterPageState extends State<Register> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final userNameController = TextEditingController();
-
-  bool _obscurePassword = true;
   late TapGestureRecognizer _tapRecognizer;
+  bool _obscurePassword = true;
 
   @override
   void initState() {
@@ -52,7 +50,9 @@ class _RegisterPageState extends State<Register> {
       await Supabase.instance.client.auth.signUp(
         email: email,
         password: password,
-        data: {'username': userName},
+        data: {
+          'username': userName, // 🔥 saved in auth metadata
+        },
       );
 
       Get.snackbar(
@@ -77,45 +77,23 @@ class _RegisterPageState extends State<Register> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xFFFFF6FA),
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          title: const Text(
-            'Register',
-            style: TextStyle(color: Colors.black),
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
-            onPressed: () => Get.back(),
-          ),
-        ),
+        appBar: AppBar(title: const Text('Register')),
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              const SizedBox(height: 30),
-
-              /// USERNAME
               CustomTextFormField(
                 hintText: 'Username',
                 textInputType: TextInputType.name,
                 controller: userNameController,
               ),
-
               const SizedBox(height: 16),
-
-              /// EMAIL
               CustomTextFormField(
                 hintText: 'Email address',
                 textInputType: TextInputType.emailAddress,
                 controller: emailController,
               ),
-
               const SizedBox(height: 16),
-
-              /// PASSWORD
               CustomTextFormField(
                 hintText: 'Password',
                 controller: passwordController,
@@ -127,57 +105,26 @@ class _RegisterPageState extends State<Register> {
                   });
                 },
               ),
-
               const SizedBox(height: 30),
-
-              /// REGISTER BUTTON
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  onPressed: _register,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Text(
-                    'Register',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+              ElevatedButton(
+                onPressed: _register,
+                child: const Text('Register'),
               ),
-
               const SizedBox(height: 30),
-
-              /// DIVIDER
-              Row(
-                children: const [
-                  Expanded(child: Divider()),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Text('Already have an account?'),
-                  ),
-                  Expanded(child: Divider()),
-                ],
-              ),
-
-              const SizedBox(height: 8),
-
-              /// LOGIN TEXT
               RichText(
                 text: TextSpan(
-                  text: 'Login',
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  recognizer: _tapRecognizer,
+                  text: 'Already have an account? ',
+                  style: const TextStyle(color: Colors.black),
+                  children: [
+                    TextSpan(
+                      text: 'Login',
+                      style: const TextStyle(
+                        color: Colors.green,
+                        decoration: TextDecoration.underline,
+                      ),
+                      recognizer: _tapRecognizer,
+                    ),
+                  ],
                 ),
               ),
             ],
