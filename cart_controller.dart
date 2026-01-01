@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import 'home controller.dart';
+import 'models.dart';
 import 'product_service.dart';
 
 class CartController extends GetxController {
@@ -24,6 +25,35 @@ class CartController extends GetxController {
     }
   }
 
+  /// Increase quantity of a cart item
+  Future<void> increaseQuantity(Map<String, dynamic> item) async {
+    try {
+      final fruitMap = item['fruit'] as Map<String, dynamic>?;
+      if (fruitMap == null) return;
+
+      final fruit = Fruit.fromJson(fruitMap);
+      await productService.increaseQuantity(fruit);
+
+      await loadCart(); // reload cart from backend
+    } catch (e) {
+      print("Error increasing quantity: $e");
+    }
+  }
+
+  Future<void> decreaseQuantity(Map<String, dynamic> item) async {
+    try {
+      final fruitMap = item['fruit'] as Map<String, dynamic>?;
+      if (fruitMap == null) return;
+
+      final fruit = Fruit.fromJson(fruitMap);
+      await productService.decreaseQuantity(fruit);
+
+      await loadCart();
+    } catch (e) {
+      print("Error decreasing quantity: $e");
+    }
+  }
+
   /// Calculate total price
   double get total => cartItems.fold(0, (sum, item) {
     final qty = item['quantity'] ?? 0;
@@ -34,34 +64,21 @@ class CartController extends GetxController {
   /// Place order
   Future<void> placeOrder() async {
     try {
-      // Only the critical operation in try-catch
       await productService.placeOrder(cartItems);
-    } catch (e) {
-      print("Error placing order: $e");
-      Get.snackbar("Error", "Failed to place order");
-      return; // Exit early if order fails
-    }
 
-    // Post-order operations (non-critical)
-    try {
+      // Clear cart state
       cartItems.clear();
 
+      // Reset quantities in HomeController
       if (Get.isRegistered<HomeController>()) {
         final homeController = Get.find<HomeController>();
         homeController.resetQuantities();
       }
 
-      // Optional: Reload cart from backend to ensure sync
-      await loadCart();
+      Get.snackbar("Success", "Order placed successfully!");
     } catch (e) {
-      print("Error cleaning up after order: $e");
+      print("Error placing order: $e");
+      Get.snackbar("Error", "Failed to place order");
     }
-
-    // Always show success since order was placed
-    Get.snackbar(
-      "Success",
-      "Order placed successfully!"
-          "coming in 30 minutes",
-    );
   }
 }

@@ -297,4 +297,25 @@ class ProductService {
       rethrow;
     }
   }
+
+  /// Submit product survey ⭐⭐⭐⭐⭐
+  Future<void> submitSurvey({
+    required int fruitId,
+    required int productRate,
+    required int serviceRate,
+    required String comment,
+  }) async {
+    final userEmail = email;
+    if (userEmail == null) {
+      throw Exception("User not logged in");
+    }
+
+    await cloud.from('surveys').insert({
+      'fruit_id': fruitId,
+      'product_rate': productRate,
+      'service_rate': serviceRate,
+      'comment': comment,
+      'user_email': userEmail,
+    });
+  }
 }
